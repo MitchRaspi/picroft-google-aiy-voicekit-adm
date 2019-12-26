@@ -52,7 +52,7 @@ class PicroftGoogleAiyVoicekit(MycroftSkill):
         if not GPIO.input(2):
             pressed_time = time.time()
             while GPIO.input(2):
-                time.sleep(0.2)
+                time.sleep(3)
             pressed_time = time.time()-pressed_time
             if pressed_time < longpress_threshold:
                 self.bus.emit(Message("mycroft.mic.listen"))
