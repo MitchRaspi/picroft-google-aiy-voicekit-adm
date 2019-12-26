@@ -34,7 +34,7 @@ class PicroftGoogleAiyVoicekit(MycroftSkill):
             GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
             GPIO.setup(25, GPIO.OUT)
-            GPIO.setup(2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             pass
         except GPIO.error:
             self.log.warning("Cant initialize GPIO - skill will not load")
