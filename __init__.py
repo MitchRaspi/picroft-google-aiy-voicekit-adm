@@ -18,9 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from mycroft import MycroftSkill
 from mycroft.messagebus.message import Message
+from subprocess import call
 
 import time
 import RPi.GPIO as GPIO
+
+
 
 
 class PicroftGoogleAiyVoicekit(MycroftSkill):
@@ -35,6 +38,8 @@ class PicroftGoogleAiyVoicekit(MycroftSkill):
             GPIO.setwarnings(False)
             GPIO.setup(25, GPIO.OUT)
             GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(9, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
             pass
         except GPIO.error:
             self.log.warning("Cant initialize GPIO - skill will not load")
@@ -42,6 +47,10 @@ class PicroftGoogleAiyVoicekit(MycroftSkill):
         finally:
             self.schedule_repeating_event(self.handle_button,
                                           None, 0.1, 'GoogleAIY')
+            self.schedule_repeating_event(self.handle_button2,
+                                          None, 0.1, 'GoogleAIY')
+            self.schedule_repeating_event(self.handle_button3,
+                                          None, 0.1, 'GoogleAIY')           
             self.add_event('recognizer_loop:record_begin',
                            self.handle_listener_started)
             self.add_event('recognizer_loop:record_end',
@@ -59,6 +68,30 @@ class PicroftGoogleAiyVoicekit(MycroftSkill):
             else:
                 self.bus.emit(Message("mycroft.stop"))
 
+    def handle_button(self, message):
+        longpress_threshold = 2
+        if not GPIO.input(9):
+            pressed_time = time.time()
+            while GPIO.input(9):
+                time.sleep(3)
+            pressed_time = time.time()-pressed_time
+            if pressed_time < longpress_threshold:
+                self.bus.emit(Message("mycroft.mic.listen"))
+            else:
+                self.bus.emit(Message("mycroft.stop"))                
+                
+    def handle_button3(self, message):
+        longpress_threshold = 2
+        if not GPIO.input(2):
+            pressed_time = time.time()
+            while GPIO.input(2):
+                time.sleep(3)
+            pressed_time = time.time()-pressed_time
+            if pressed_time < longpress_threshold:
+                self.bus.emit(Message("mycroft.mic.listen"))
+            else:
+                self.bus.emit(Message("mycroft.stop"))                
+                
     def handle_listener_started(self, message):
         # code to excecute when active listening begins...
         GPIO.output(25, GPIO.HIGH)
